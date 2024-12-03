@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Management</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      h1 {
+        color: #333;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid #ccc;
+      }
+      th,
+      td {
+        padding: 10px;
+        text-align: left;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      input,
+      button {
+        padding: 8px;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Product Management</h1>
+    <button onclick="fetchProducts()">Fetch Products</button>
+    <table id="productTable">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Price</th>
+          <th>Category</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h2>Add New Product</h2>
+    <form id="productForm" onsubmit="addProduct(event)">
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" required />
+      </div>
+      <div class="form-group">
+        <label for="price">Price</label>
+        <input type="number" id="price" name="price" required />
+      </div>
+      <div class="form-group">
+        <label for="category">Category</label>
+        <input type="text" id="category" name="category" required />
+      </div>
+      <button type="submit">Add Product</button>
+    </form>
+
+    <script>
+      async function fetchProducts() {
+        const response = await fetch("/products");
+        const products = await response.json();
+        const tbody = document.querySelector("#productTable tbody");
+        tbody.innerHTML = "";
+        products.forEach((product) => {
+          const row = `<tr>
+                    <td>${product.title}</td>
+                    <td>${product.price}</td>
+                    <td>${product.category}</td>
+                </tr>`;
+          tbody.innerHTML += row;
+        });
+      }
+
+      async function addProduct(event) {
+        event.preventDefault();
+        const title = document.getElementById("title").value;
+        const price = document.getElementById("price").value;
+        const category = document.getElementById("category").value;
+
+        const response = await fetch("/products", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, price, category }),
+        });
+        if (response.ok) {
+          fetchProducts();
+          document.getElementById("productForm").reset();
+        } else {
+          alert("Failed to add product!");
+        }
+      }
+    </script>
+  </body>
+</html>
